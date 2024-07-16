@@ -1,5 +1,6 @@
 package com.geeksloft.udprelay
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -30,8 +31,8 @@ class MainActivity : AppCompatActivity() {
 
     private val btnListener = View.OnClickListener {
         when(it.id) {
-            R.id.main_btn_start -> TODO()
-            R.id.main_btn_stop -> TODO()
+            R.id.main_btn_start -> startService(Intent(applicationContext, RelayService::class.java))
+            R.id.main_btn_stop -> stopService(Intent(applicationContext, RelayService::class.java))
         }
     }
 }
