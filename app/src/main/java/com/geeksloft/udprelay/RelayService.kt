@@ -15,7 +15,7 @@ class RelayService : Service() {
     private var serverSocket: DatagramSocket? = null
 
     private var dstIP: String? = ""
-    private var dstPort: Int? = 0
+    private var dstPort: Int = 0
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(LOG_TAG, "Starting Service")
