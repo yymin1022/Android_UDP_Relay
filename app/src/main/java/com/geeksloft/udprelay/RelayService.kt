@@ -73,12 +73,12 @@ class RelayService : Service() {
 
             if(clientSocket == null || serverSocket == null) {
                 Log.e(LOG_TAG, "Socket not initialized!!")
-                return
+                stopSelf()
             }
 
             if(dstIP.isNullOrEmpty() || dstPort == 0) {
                 Log.e(LOG_TAG, "Invalid Destination Info!!")
-                return
+                stopSelf()
             }
 
             Log.d(LOG_TAG, "Server Listening on ${serverSocket!!.localAddress.hostAddress}:${serverSocket!!.localPort}")
@@ -96,6 +96,7 @@ class RelayService : Service() {
                 }
             } catch(e: Exception) {
                 Log.e(LOG_TAG, e.toString())
+                stopSelf()
             }
         }
     }
