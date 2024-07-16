@@ -10,6 +10,7 @@
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:inputType="text"
         android:id="@+id/main_input_ip"
         app:layout_constraintBottom_toTopOf="@id/main_input_port"
         app:layout_constraintEnd_toEndOf="parent"
@@ -19,6 +20,7 @@
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:inputType="numberSigned"
         android:id="@+id/main_input_port"
         app:layout_constraintBottom_toTopOf="@id/main_btn_start"
         app:layout_constraintEnd_toEndOf="parent"
