@@ -35,7 +35,9 @@ class RelayService : Service() {
         Log.d(LOG_TAG, "Stopping Service")
 
         SocketThread().join()
-        while(SocketThread().isAlive)
+        while(SocketThread().isAlive) {
+            continue
+        }
         closeSocket()
 
         Log.d(LOG_TAG, "Stopped Service")
