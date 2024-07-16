@@ -1,12 +1,17 @@
 package com.geeksloft.udprelay
 
 import android.os.Bundle
+import android.view.View
+import android.widget.Button
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
 class MainActivity : AppCompatActivity() {
+    private var btnStart: Button? = null
+    private var btnStop: Button? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -15,6 +20,18 @@ class MainActivity : AppCompatActivity() {
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
+        }
+
+        btnStart = findViewById(R.id.main_btn_start)
+        btnStop = findViewById(R.id.main_btn_stop)
+        btnStart!!.setOnClickListener(btnListener)
+        btnStop!!.setOnClickListener(btnListener)
+    }
+
+    private val btnListener = View.OnClickListener {
+        when(it.id) {
+            R.id.main_btn_start -> TODO()
+            R.id.main_btn_stop -> TODO()
         }
     }
 }
