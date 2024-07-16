@@ -6,10 +6,12 @@ import android.os.IBinder
 import android.util.Log
 import java.net.DatagramPacket
 import java.net.DatagramSocket
+import java.net.InetAddress
 import java.util.Arrays
 
 class RelayService : Service() {
     private val LOG_TAG = "Relay Service"
+    private var clientSocket: DatagramSocket? = null
     private var serverSocket: DatagramSocket? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -38,13 +40,22 @@ class RelayService : Service() {
     }
 
     private fun initSocket() {
-        if(serverSocket == null){
+        if(clientSocket == null) {
+            clientSocket = DatagramSocket()
+        }
+
+        if(serverSocket == null) {
             serverSocket = DatagramSocket(8900)
         }
     }
 
     private fun closeSocket() {
-        if(serverSocket != null){
+        if(clientSocket != null) {
+            clientSocket!!.close()
+            clientSocket = null
+        }
+
+        if(serverSocket != null) {
             serverSocket!!.close()
             serverSocket = null
         }
@@ -54,7 +65,7 @@ class RelayService : Service() {
         override fun run() {
             super.run()
 
-            if(serverSocket == null) {
+            if(clientSocket == null || serverSocket == null) {
                 Log.e(LOG_TAG, "Socket not initialized!!")
                 return
             }
@@ -66,6 +77,10 @@ class RelayService : Service() {
                 while(true) {
                     serverSocket!!.receive(receivePacket)
                     Log.i(LOG_TAG, "Received ${receivePacket.data.contentToString()}")
+
+                    val sendPacket = DatagramPacket(receiveBuffer, receiveBuffer.size, InetAddress.getByName("192.168.8.152"), 14094)
+                    clientSocket!!.send(sendPacket)
+
                     Arrays.fill(receiveBuffer, 0)
                 }
             } catch(e: Exception) {
