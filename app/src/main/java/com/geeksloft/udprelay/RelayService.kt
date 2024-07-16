@@ -83,7 +83,7 @@ class RelayService : Service() {
 
             Log.d(LOG_TAG, "Server Listening on ${serverSocket!!.localAddress.hostAddress}:${serverSocket!!.localPort}")
             try {
-                val receiveBuffer = ByteArray(1024)
+                val receiveBuffer = ByteArray(20480)
                 val receivePacket = DatagramPacket(receiveBuffer, receiveBuffer.size)
                 while(true) {
                     serverSocket!!.receive(receivePacket)
