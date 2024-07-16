@@ -6,6 +6,7 @@ import android.os.IBinder
 import android.util.Log
 import java.net.DatagramPacket
 import java.net.DatagramSocket
+import java.util.Arrays
 
 class RelayService : Service() {
     private val LOG_TAG = "Relay Service"
@@ -64,6 +65,7 @@ class RelayService : Service() {
                 while(true) {
                     serverSocket!!.receive(receivePacket)
                     Log.i(LOG_TAG, "Received ${receivePacket.data.contentToString()}")
+                    Arrays.fill(receiveBuffer, 0)
                 }
             } catch(e: Exception) {
                 Log.e(LOG_TAG, e.toString())
