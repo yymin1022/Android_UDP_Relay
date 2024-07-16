@@ -14,8 +14,14 @@ class RelayService : Service() {
     private var clientSocket: DatagramSocket? = null
     private var serverSocket: DatagramSocket? = null
 
+    private var dstIP: String? = ""
+    private var dstPort: Int? = 0
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(LOG_TAG, "Starting Service")
+
+        dstIP = intent!!.getStringExtra("DST_IP")
+        dstPort = intent.getIntExtra("DST_PORT", 0)
 
         initSocket()
         SocketThread().start()
@@ -70,6 +76,11 @@ class RelayService : Service() {
                 return
             }
 
+            if(dstIP.isNullOrEmpty() || dstPort == 0) {
+                Log.e(LOG_TAG, "Invalid Destination Info!!")
+                return
+            }
+
             Log.d(LOG_TAG, "Server Listening on ${serverSocket!!.localAddress.hostAddress}:${serverSocket!!.localPort}")
             try {
                 val receiveBuffer = ByteArray(1024)
@@ -78,7 +89,7 @@ class RelayService : Service() {
                     serverSocket!!.receive(receivePacket)
                     Log.i(LOG_TAG, "Received ${receivePacket.data.contentToString()}")
 
-                    val sendPacket = DatagramPacket(receiveBuffer, receiveBuffer.size, InetAddress.getByName("192.168.8.152"), 14094)
+                    val sendPacket = DatagramPacket(receiveBuffer, receiveBuffer.size, InetAddress.getByName(dstIP), dstPort)
                     clientSocket!!.send(sendPacket)
 
                     Arrays.fill(receiveBuffer, 0)
