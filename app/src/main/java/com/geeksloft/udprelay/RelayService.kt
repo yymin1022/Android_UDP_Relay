@@ -15,7 +15,9 @@ import java.nio.channels.DatagramChannel
 
 class RelayService : Service() {
     private val LOG_TAG = "Relay Service"
+    private var clientAddr: InetSocketAddress? = null
     private var clientChannel: DatagramChannel? = null
+    private var serverAddr: InetSocketAddress? = null
     private var serverChannel: DatagramChannel? = null
 
     private var dstIP: String? = ""
@@ -54,11 +56,13 @@ class RelayService : Service() {
 
     private fun initSocket() {
         if(clientChannel == null) {
+            clientAddr = InetSocketAddress(8900)
             clientChannel = DatagramChannel.open()
-            clientChannel!!.socket().bind(InetSocketAddress(8900))
+            clientChannel!!.socket().bind(clientAddr)
         }
 
         if(serverChannel == null) {
+            serverAddr = InetSocketAddress(InetAddress.getByName(dstIP), dstPort)
             serverChannel = DatagramChannel.open()
         }
     }
@@ -89,7 +93,7 @@ class RelayService : Service() {
                 stopSelf()
             }
 
-            Log.d(LOG_TAG, "Server Listening on ${serverChannel!!.localAddress}")
+            Log.d(LOG_TAG, "Server Listening on ${clientAddr!!.address.hostAddress}:${clientAddr!!.port}")
             try {
                 while(true) {
                     val receiveBuffer = ByteBuffer.allocateDirect(65507)
@@ -102,8 +106,7 @@ class RelayService : Service() {
                     Log.i(LOG_TAG, "Received ${tmpBuffer.contentToString()}")
 
                     val sendBuffer = ByteBuffer.wrap(tmpBuffer)
-                    val targetAddress = InetSocketAddress(InetAddress.getByName(dstIP), dstPort)
-                    serverChannel!!.send(sendBuffer, targetAddress)
+                    serverChannel!!.send(sendBuffer, serverAddr)
                 }
             } catch(e: Exception) {
                 Log.e(LOG_TAG, e.toString())
