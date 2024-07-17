@@ -99,11 +99,9 @@ class RelayService : Service() {
                     val receiveBuffer = ByteBuffer.allocateDirect(65507)
                     clientChannel!!.receive(receiveBuffer)
                     receiveBuffer.flip()
-
-
+                    
                     val tmpBuffer = ByteArray(receiveBuffer.limit())
                     receiveBuffer.get(tmpBuffer)
-                    Log.i(LOG_TAG, "Received ${tmpBuffer.contentToString()}")
 
                     val sendBuffer = ByteBuffer.wrap(tmpBuffer)
                     serverChannel!!.send(sendBuffer, serverAddr)
