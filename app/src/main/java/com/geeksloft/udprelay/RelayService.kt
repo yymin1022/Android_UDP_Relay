@@ -1,6 +1,10 @@
 package com.geeksloft.udprelay
 
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
@@ -25,6 +29,7 @@ class RelayService : Service() {
 
         initSocket()
         SocketThread().start()
+        startForegroundService()
 
         Log.d(LOG_TAG, "Started Service")
         return START_STICKY
@@ -101,5 +106,20 @@ class RelayService : Service() {
                 stopSelf()
             }
         }
+    }
+
+    private fun startForegroundService(){
+        val serviceChannel = NotificationChannel(
+            "FOREGROUND_SERVICE",
+            "Foreground Service Channel",
+            NotificationManager.IMPORTANCE_DEFAULT
+        )
+        (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).apply {
+            createNotificationChannel(serviceChannel)
+        }
+
+        startForeground(1234, Notification.Builder(this, "FOREGROUND_SERVICE")
+            .setContentTitle("Foreground Service")
+            .build())
     }
 }
