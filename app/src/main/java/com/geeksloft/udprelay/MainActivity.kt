@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity() {
                 val intent = Intent(applicationContext, RelayService::class.java)
                 intent.putExtra("DST_IP", if(inputIP!!.text.isNotEmpty()) inputIP!!.text.toString() else "")
                 intent.putExtra("DST_PORT", if(inputPort!!.text.isNotEmpty()) inputPort!!.text.toString().toInt() else 0)
-                startService(intent)
+                startForegroundService(intent)
             }
             R.id.main_btn_stop -> stopService(Intent(applicationContext, RelayService::class.java))
         }
