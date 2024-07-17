@@ -8,15 +8,15 @@ import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
-import java.net.DatagramPacket
-import java.net.DatagramSocket
 import java.net.InetAddress
-import java.util.Arrays
+import java.net.InetSocketAddress
+import java.nio.ByteBuffer
+import java.nio.channels.DatagramChannel
 
 class RelayService : Service() {
     private val LOG_TAG = "Relay Service"
-    private var clientSocket: DatagramSocket? = null
-    private var serverSocket: DatagramSocket? = null
+    private var clientChannel: DatagramChannel? = null
+    private var serverChannel: DatagramChannel? = null
 
     private var dstIP: String? = ""
     private var dstPort: Int = 0
@@ -53,24 +53,25 @@ class RelayService : Service() {
     }
 
     private fun initSocket() {
-        if(clientSocket == null) {
-            clientSocket = DatagramSocket()
+        if(clientChannel == null) {
+            clientChannel = DatagramChannel.open()
+            clientChannel!!.socket().bind(InetSocketAddress(8900))
         }
 
-        if(serverSocket == null) {
-            serverSocket = DatagramSocket(8900)
+        if(serverChannel == null) {
+            serverChannel = DatagramChannel.open()
         }
     }
 
     private fun closeSocket() {
-        if(clientSocket != null) {
-            clientSocket!!.close()
-            clientSocket = null
+        if(clientChannel != null) {
+            clientChannel!!.close()
+            clientChannel = null
         }
 
-        if(serverSocket != null) {
-            serverSocket!!.close()
-            serverSocket = null
+        if(serverChannel != null) {
+            serverChannel!!.close()
+            serverChannel = null
         }
     }
 
@@ -78,8 +79,8 @@ class RelayService : Service() {
         override fun run() {
             super.run()
 
-            if(clientSocket == null || serverSocket == null) {
-                Log.e(LOG_TAG, "Socket not initialized!!")
+            if(clientChannel == null || serverChannel == null) {
+                Log.e(LOG_TAG, "Client/Server Channel not initialized!!")
                 stopSelf()
             }
 
@@ -88,18 +89,21 @@ class RelayService : Service() {
                 stopSelf()
             }
 
-            Log.d(LOG_TAG, "Server Listening on ${serverSocket!!.localAddress.hostAddress}:${serverSocket!!.localPort}")
+            Log.d(LOG_TAG, "Server Listening on ${serverChannel!!.localAddress}")
             try {
-                val receiveBuffer = ByteArray(20480)
-                val receivePacket = DatagramPacket(receiveBuffer, receiveBuffer.size)
                 while(true) {
-                    serverSocket!!.receive(receivePacket)
-                    Log.i(LOG_TAG, "Received ${receivePacket.data.contentToString()}")
+                    val receiveBuffer = ByteBuffer.allocateDirect(65507)
+                    clientChannel!!.receive(receiveBuffer)
+                    receiveBuffer.flip()
 
-                    val sendPacket = DatagramPacket(receiveBuffer, receiveBuffer.size, InetAddress.getByName(dstIP), dstPort)
-                    clientSocket!!.send(sendPacket)
 
-                    Arrays.fill(receiveBuffer, 0)
+                    val tmpBuffer = ByteArray(receiveBuffer.limit())
+                    receiveBuffer.get(tmpBuffer)
+                    Log.i(LOG_TAG, "Received ${tmpBuffer.contentToString()}")
+
+                    val sendBuffer = ByteBuffer.wrap(tmpBuffer)
+                    val targetAddress = InetSocketAddress(InetAddress.getByName(dstIP), dstPort)
+                    serverChannel!!.send(sendBuffer, targetAddress)
                 }
             } catch(e: Exception) {
                 Log.e(LOG_TAG, e.toString())
