@@ -15,22 +15,31 @@ import java.nio.channels.DatagramChannel
 
 class RelayService : Service() {
     private val LOG_TAG = "Relay Service"
-    private var clientAddr: InetSocketAddress? = null
-    private var clientChannel: DatagramChannel? = null
-    private var serverAddr: InetSocketAddress? = null
-    private var serverChannel: DatagramChannel? = null
+    private var clientAddr_1: InetSocketAddress? = null
+    private var clientAddr_2: InetSocketAddress? = null
+    private var clientChannel_1: DatagramChannel? = null
+    private var clientChannel_2: DatagramChannel? = null
+    private var serverAddr_1: InetSocketAddress? = null
+    private var serverAddr_2: InetSocketAddress? = null
+    private var serverChannel_1: DatagramChannel? = null
+    private var serverChannel_2: DatagramChannel? = null
 
-    private var dstIP: String? = ""
-    private var dstPort: Int = 0
+    private var dstIP_1: String? = ""
+    private var dstIP_2: String? = ""
+    private var dstPort_1: Int = 0
+    private var dstPort_2: Int = 0
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(LOG_TAG, "Starting Service")
 
-        dstIP = intent!!.getStringExtra("DST_IP")
-        dstPort = intent.getIntExtra("DST_PORT", 0)
+        dstIP_1 = intent!!.getStringExtra("DST_IP_1")
+        dstPort_1 = intent.getIntExtra("DST_PORT_1", 0)
+        dstIP_2 = intent!!.getStringExtra("DST_IP_2")
+        dstPort_2 = intent.getIntExtra("DST_PORT_2", 0)
 
         initSocket()
-        SocketThread().start()
+        SocketThread_1().start()
+        SocketThread_2().start()
         startForegroundService()
 
         Log.d(LOG_TAG, "Started Service")
@@ -41,8 +50,9 @@ class RelayService : Service() {
         super.onDestroy()
         Log.d(LOG_TAG, "Stopping Service")
 
-        SocketThread().join()
-        while(SocketThread().isAlive) {
+        SocketThread_1().join()
+        SocketThread_2().join()
+        while(SocketThread_1().isAlive || SocketThread_2().isAlive) {
             continue
         }
         closeSocket()
@@ -55,56 +65,111 @@ class RelayService : Service() {
     }
 
     private fun initSocket() {
-        if(clientChannel == null) {
-            clientAddr = InetSocketAddress(8900)
-            clientChannel = DatagramChannel.open()
-            clientChannel!!.socket().bind(clientAddr)
+        if(clientChannel_1 == null) {
+            clientAddr_1 = InetSocketAddress(8900)
+            clientChannel_1 = DatagramChannel.open()
+            clientChannel_1!!.socket().bind(clientAddr_1)
         }
 
-        if(serverChannel == null) {
-            serverAddr = InetSocketAddress(InetAddress.getByName(dstIP), dstPort)
-            serverChannel = DatagramChannel.open()
+        if(clientChannel_2 == null) {
+            clientAddr_2 = InetSocketAddress(8901)
+            clientChannel_2 = DatagramChannel.open()
+            clientChannel_2!!.socket().bind(clientAddr_2)
+        }
+
+        if(serverChannel_1 == null) {
+            serverAddr_1 = InetSocketAddress(InetAddress.getByName(dstIP_1), dstPort_1)
+            serverChannel_1 = DatagramChannel.open()
+        }
+
+        if(serverChannel_2 == null) {
+            serverAddr_2 = InetSocketAddress(InetAddress.getByName(dstIP_2), dstPort_2)
+            serverChannel_2 = DatagramChannel.open()
         }
     }
 
     private fun closeSocket() {
-        if(clientChannel != null) {
-            clientChannel!!.close()
-            clientChannel = null
+        if(clientChannel_1 != null) {
+            clientChannel_1!!.close()
+            clientChannel_1 = null
         }
 
-        if(serverChannel != null) {
-            serverChannel!!.close()
-            serverChannel = null
+        if(clientChannel_2 != null) {
+            clientChannel_2!!.close()
+            clientChannel_2 = null
+        }
+
+        if(serverChannel_1 != null) {
+            serverChannel_1!!.close()
+            serverChannel_1 = null
+        }
+
+        if(serverChannel_2 != null) {
+            serverChannel_2!!.close()
+            serverChannel_2 = null
         }
     }
 
-    inner class SocketThread: Thread() {
+    inner class SocketThread_1: Thread() {
         override fun run() {
             super.run()
 
-            if(clientChannel == null || serverChannel == null) {
+            if(clientChannel_1 == null || serverChannel_1 == null) {
                 Log.e(LOG_TAG, "Client/Server Channel not initialized!!")
                 stopSelf()
             }
 
-            if(dstIP.isNullOrEmpty() || dstPort == 0) {
+            if(dstIP_1.isNullOrEmpty() || dstPort_1 == 0) {
                 Log.e(LOG_TAG, "Invalid Destination Info!!")
                 stopSelf()
             }
 
-            Log.d(LOG_TAG, "Server Listening on ${clientAddr!!.address.hostAddress}:${clientAddr!!.port}")
+            Log.d(LOG_TAG, "Server Listening on ${clientAddr_1!!.address.hostAddress}:${clientAddr_1!!.port}")
             try {
                 while(true) {
                     val receiveBuffer = ByteBuffer.allocateDirect(65507)
-                    clientChannel!!.receive(receiveBuffer)
+                    clientChannel_1!!.receive(receiveBuffer)
                     receiveBuffer.flip()
                     
                     val tmpBuffer = ByteArray(receiveBuffer.limit())
                     receiveBuffer.get(tmpBuffer)
 
                     val sendBuffer = ByteBuffer.wrap(tmpBuffer)
-                    serverChannel!!.send(sendBuffer, serverAddr)
+                    serverChannel_1!!.send(sendBuffer, serverAddr_1)
+                }
+            } catch(e: Exception) {
+                Log.e(LOG_TAG, e.toString())
+                stopSelf()
+            }
+        }
+    }
+
+    inner class SocketThread_2: Thread() {
+        override fun run() {
+            super.run()
+
+            if(clientChannel_2 == null || serverChannel_2 == null) {
+                Log.e(LOG_TAG, "Client/Server Channel not initialized!!")
+                stopSelf()
+            }
+
+            if(dstIP_2.isNullOrEmpty() || dstPort_2 == 0) {
+                Log.e(LOG_TAG, "Invalid Destination Info!!")
+                stopSelf()
+            }
+
+            Log.d(LOG_TAG, "Server Listening on ${clientAddr_2!!.address.hostAddress}:${clientAddr_2!!.port}")
+            try {
+                while(true) {
+                    val receiveBuffer = ByteBuffer.allocateDirect(65507)
+                    clientChannel_2!!.receive(receiveBuffer)
+                    receiveBuffer.flip()
+
+                    val tmpBuffer = ByteArray(receiveBuffer.limit())
+                    receiveBuffer.get(tmpBuffer)
+
+                    val sendBuffer = ByteBuffer.wrap(tmpBuffer)
+                    serverChannel_2!!.send(sendBuffer, serverAddr_2)
                 }
             } catch(e: Exception) {
                 Log.e(LOG_TAG, e.toString())
