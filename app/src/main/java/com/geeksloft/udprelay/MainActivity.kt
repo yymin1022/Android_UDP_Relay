@@ -13,8 +13,10 @@ import androidx.core.view.WindowInsetsCompat
 class MainActivity : AppCompatActivity() {
     private var btnStart: Button? = null
     private var btnStop: Button? = null
-    private var inputIP: EditText? = null
-    private var inputPort: EditText? = null
+    private var inputIP_1: EditText? = null
+    private var inputIP_2: EditText? = null
+    private var inputPort_1: EditText? = null
+    private var inputPort_2: EditText? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,16 +33,20 @@ class MainActivity : AppCompatActivity() {
         btnStart!!.setOnClickListener(btnListener)
         btnStop!!.setOnClickListener(btnListener)
 
-        inputIP = findViewById(R.id.main_input_ip)
-        inputPort = findViewById(R.id.main_input_port)
+        inputIP_1 = findViewById(R.id.main_input_ip_1)
+        inputIP_2 = findViewById(R.id.main_input_ip_2)
+        inputPort_1 = findViewById(R.id.main_input_port_1)
+        inputPort_2 = findViewById(R.id.main_input_port_2)
     }
 
     private val btnListener = View.OnClickListener {
         when(it.id) {
             R.id.main_btn_start -> {
                 val intent = Intent(applicationContext, RelayService::class.java)
-                intent.putExtra("DST_IP", if(inputIP!!.text.isNotEmpty()) inputIP!!.text.toString() else "")
-                intent.putExtra("DST_PORT", if(inputPort!!.text.isNotEmpty()) inputPort!!.text.toString().toInt() else 0)
+                intent.putExtra("DST_IP_1", if(inputIP_1!!.text.isNotEmpty()) inputIP_1!!.text.toString() else "")
+                intent.putExtra("DST_PORT_1", if(inputPort_1!!.text.isNotEmpty()) inputPort_1!!.text.toString().toInt() else 0)
+                intent.putExtra("DST_IP_2", if(inputIP_2!!.text.isNotEmpty()) inputIP_2!!.text.toString() else "")
+                intent.putExtra("DST_PORT_2", if(inputPort_2!!.text.isNotEmpty()) inputPort_2!!.text.toString().toInt() else 0)
                 startForegroundService(intent)
             }
             R.id.main_btn_stop -> stopService(Intent(applicationContext, RelayService::class.java))
