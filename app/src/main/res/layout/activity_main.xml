@@ -11,9 +11,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="text"
-        android:hint="Server IP"
-        android:id="@+id/main_input_ip"
-        app:layout_constraintBottom_toTopOf="@id/main_input_port"
+        android:hint="Server IP 1"
+        android:id="@+id/main_input_ip_1"
+        app:layout_constraintBottom_toTopOf="@id/main_input_port_1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -22,12 +22,34 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="numberSigned"
-        android:hint="Server Port"
-        android:id="@+id/main_input_port"
+        android:hint="Server Port 1"
+        android:id="@+id/main_input_port_1"
+        app:layout_constraintBottom_toTopOf="@id/main_input_ip_2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/main_input_ip_1" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="text"
+        android:hint="Server IP 2"
+        android:id="@+id/main_input_ip_2"
+        app:layout_constraintBottom_toTopOf="@id/main_input_port_2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/main_input_port_1" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="numberSigned"
+        android:hint="Server Port 2"
+        android:id="@+id/main_input_port_2"
         app:layout_constraintBottom_toTopOf="@id/main_btn_start"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/main_input_ip" />
+        app:layout_constraintTop_toBottomOf="@id/main_input_ip_2" />
 
     <Button
         android:layout_width="wrap_content"
@@ -37,7 +59,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/main_btn_stop"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/main_input_port" />
+        app:layout_constraintTop_toBottomOf="@id/main_input_port_2" />
 
     <Button
         android:layout_width="wrap_content"
@@ -47,6 +69,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/main_btn_start"
-        app:layout_constraintTop_toBottomOf="@id/main_input_port" />
+        app:layout_constraintTop_toBottomOf="@id/main_input_port_2" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
